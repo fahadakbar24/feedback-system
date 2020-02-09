@@ -16,6 +16,25 @@ Route::get('/', function () {
 });
 
 // Auth::routes();
-Auth::routes(['register' => false]);
+Route::get('/home', 'HomeController@index')->name('home')->middleware('auth');
 
-Route::get('/home', 'HomeController@index')->name('home');
+// disable registration
+Auth::routes(['register' => false]);
+Route::get('register', function () {
+	return abort(404);
+})->name('register');
+
+
+Route::group(['middleware' => 'auth'], function () {
+	Route::get('feedback', function () {
+		return view('pages.feedback');
+	})->name('table');
+});
+
+Route::group(['middleware' => 'auth'], function () {
+	Route::resource('user', 'UserController', ['except' => ['show']]);
+	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'ProfileController@edit']);
+	Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
+	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);
+});
+
